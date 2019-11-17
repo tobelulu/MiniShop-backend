@@ -24,7 +24,6 @@ class Token
         $timestamp = $_SERVER['REQUEST_TIME'];
         //salt 盐
         $salt = config('secure.token_salt');
-
         return md5($randChars.$timestamp.$salt);
     }
 
@@ -61,10 +60,6 @@ class Token
 
     /**
      * 用户和管理员都可以访问的权限
-     * @return bool
-     * @throws Exception
-     * @throws ForbiddenException
-     * @throws TokenException
      */
     public static function needPrimaryScope(){
         $scope = self::getCurrentTokenVar('scope');
@@ -83,10 +78,6 @@ class Token
 
     /**
      * 只有用户才可以访问的接口权限
-     * @return bool
-     * @throws Exception
-     * @throws ForbiddenException
-     * @throws TokenException
      */
     public static function needExclusiveScope(){
         $scope = self::getCurrentTokenVar('scope');

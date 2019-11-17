@@ -20,12 +20,12 @@ use think\Collection;
 
 class Product extends BaseController
 {
-    protected $beforeActionList = [
-        'checkAdministratorsScope' => ['only' => 'deleteOne,upload'],
-    ];//权限控制
+//    protected $beforeActionList = [
+//        'checkAdministratorsScope' => ['only' => 'deleteOne,upload'],
+//    ];//权限控制
 
     /**
-     * 获取最近添加的商品(实际上可以分页加载全部的商品)
+     * 获取最近添加的商品(可分页加载全部的商品)
      * @param int $count
      * @return array
      * @throws ProductException
@@ -80,11 +80,11 @@ class Product extends BaseController
      * @return bool
      * @throws \app\lib\exception\ParameterException
      */
-    public function deleteOne($id){
-        (new IDMustBePositiveInt())->goCheck();
-        ProductModel::destroy($id);
-        return Json(new SuccessMessage(),201);
-    }
+//    public function deleteOne($id){
+//        (new IDMustBePositiveInt())->goCheck();
+//        ProductModel::destroy($id);
+//        return Json(new SuccessMessage(),201);
+//    }
 
     /**
      * 获取全部商品(分页)(未被软删除的)
@@ -94,14 +94,14 @@ class Product extends BaseController
      * @throws ProductException
      * @throws \app\lib\exception\ParameterException
      */
-    public function getAll($page=1,$size=15){
-        (new PagingParameter())->goCheck();
-        $pagingProducts = ProductModel::getAll($page,$size);
-        if(!$pagingProducts){
-            throw new ProductException();
-        }
-        return $pagingProducts;
-    }
+//    public function getAll($page=1,$size=15){
+//        (new PagingParameter())->goCheck();
+//        $pagingProducts = ProductModel::getAll($page,$size);
+//        if(!$pagingProducts){
+//            throw new ProductException();
+//        }
+//        return $pagingProducts;
+//    }
 
     /**
      * 上传商品
@@ -109,33 +109,33 @@ class Product extends BaseController
      * @throws ImageException
      * @throws \app\lib\exception\ParameterException
      */
-    public function upload(){
-        $validate = new UploadImg();
-        $validate->goCheck();
-        $dataArray = $validate->getDataByRule(input('post.'));
-        $main_img = request()->file('main_img');
-        $fileInfo = $main_img->validate(['ext'=>'jpg,jpeg,png,gif'])->move( '../public/images');//保存图片
-        if($fileInfo){
-            $image = ImageModel::createImage(str_replace('\\','/',$fileInfo->getSaveName()));//保存Image表
-            $product = ProductModel::createProduct($dataArray,str_replace('\\','/',$fileInfo->getSaveName()),$image->id);//保存Product表
-            ProductPropertyModel::createProductProperty(json_decode($dataArray['property'],true),$product->id);//保存product_property表
-            $product_image =[];
-            for($i=0;$i<$dataArray['imgLength'];$i++){
-                $product_image[$i] = request()->file('product_image'.$i);
-                $fileInfo = $product_image[$i]->validate(['ext'=>'jpg,jpeg,png,gif'])->move( '../public/images');//保存图片
-                if($fileInfo){
-                    $image = ImageModel::createImage(str_replace('\\','/',$fileInfo->getSaveName()));//保存Image表
-
-                    ProductImageModel::createProductImage($image->id,$i+1,$product->id);//保存product_image表
-                }
-                else{
-                    throw new ImageException();
-                }
-            }
-            return Json(new SuccessMessage(),201);
-        }
-        else{
-            throw new ImageException();
-        }
-    }
+//    public function upload(){
+//        $validate = new UploadImg();
+//        $validate->goCheck();
+//        $dataArray = $validate->getDataByRule(input('post.'));
+//        $main_img = request()->file('main_img');
+//        $fileInfo = $main_img->validate(['ext'=>'jpg,jpeg,png,gif'])->move( '../public/images');//保存图片
+//        if($fileInfo){
+//            $image = ImageModel::createImage(str_replace('\\','/',$fileInfo->getSaveName()));//保存Image表
+//            $product = ProductModel::createProduct($dataArray,str_replace('\\','/',$fileInfo->getSaveName()),$image->id);//保存Product表
+//            ProductPropertyModel::createProductProperty(json_decode($dataArray['property'],true),$product->id);//保存product_property表
+//            $product_image =[];
+//            for($i=0;$i<$dataArray['imgLength'];$i++){
+//                $product_image[$i] = request()->file('product_image'.$i);
+//                $fileInfo = $product_image[$i]->validate(['ext'=>'jpg,jpeg,png,gif'])->move( '../public/images');//保存图片
+//                if($fileInfo){
+//                    $image = ImageModel::createImage(str_replace('\\','/',$fileInfo->getSaveName()));//保存Image表
+//
+//                    ProductImageModel::createProductImage($image->id,$i+1,$product->id);//保存product_image表
+//                }
+//                else{
+//                    throw new ImageException();
+//                }
+//            }
+//            return Json(new SuccessMessage(),201);
+//        }
+//        else{
+//            throw new ImageException();
+//        }
+//    }
 }

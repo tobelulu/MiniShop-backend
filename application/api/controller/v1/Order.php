@@ -27,11 +27,11 @@ class Order extends BaseController
     //成功：进行库存量检测
     //  成功：进行库存量扣除
 
-    protected $beforeActionList = [
-        'checkExclusiveScope' => ['only' => 'placeOrder'],
-        'checkPrimaryScope' => ['only' => 'getSummaryByUser,getDetail'],
-        'checkAdministratorsScope' => ['only' => 'getSummary,delivery'],
-    ];//权限控制
+//    protected $beforeActionList = [
+//        'checkExclusiveScope' => ['only' => 'placeOrder'],
+//        'checkPrimaryScope' => ['only' => 'getSummaryByUser,getDetail'],
+////        'checkAdministratorsScope' => ['only' => 'getSummary,delivery'],
+//    ];//权限控制
 
     //创建订单
     public function placeOrder(){
@@ -73,7 +73,7 @@ class Order extends BaseController
      */
     public function getDetail($id){
         (new IDMustBePositiveInt())->goCheck();
-        $orderDetail = OrderModel::get($id);
+        $orderDetail = OrderModel::with(['deliverRecord'])->find($id);
         if(!$orderDetail){
             throw new OrderException();
         }
@@ -87,19 +87,19 @@ class Order extends BaseController
      * @return array
      * @throws \app\lib\exception\ParameterException
      */
-    public function getSummary($page=1, $size = 20){
-        (new PagingParameter())->goCheck();
-        $pagingOrders = OrderModel::getSummaryByPage($page, $size);
-        if ($pagingOrders->isEmpty())
-        {
-            return [
-                'current_page' => $pagingOrders->currentPage(),
-                'data' => []
-            ];
-        }
-        $data = $pagingOrders->toArray();
-        return $data;
-    }
+//    public function getSummary($page=1, $size = 20){
+//        (new PagingParameter())->goCheck();
+//        $pagingOrders = OrderModel::getSummaryByPage($page, $size);
+//        if ($pagingOrders->isEmpty())
+//        {
+//            return [
+//                'current_page' => $pagingOrders->currentPage(),
+//                'data' => []
+//            ];
+//        }
+//        $data = $pagingOrders->toArray();
+//        return $data;
+//    }
 
     /**
      * 发送模板消息
@@ -107,14 +107,14 @@ class Order extends BaseController
      * @return SuccessMessage
      * @throws \app\lib\exception\ParameterException
      */
-    public function delivery($id,$expressNumber){
-        (new IDMustBePositiveInt())->goCheck();
-        $order = new OrderService();
-        $success = $order->delivery($id,$expressNumber);
-        if($success){
-            return new SuccessMessage();
-        }
-    }
+//    public function delivery($id,$expressNumber){
+//        (new IDMustBePositiveInt())->goCheck();
+//        $order = new OrderService();
+//        $success = $order->delivery($id,$expressNumber);
+//        if($success){
+//            return new SuccessMessage();
+//        }
+//    }
 
     //获取邮费
     public function getPostage(){

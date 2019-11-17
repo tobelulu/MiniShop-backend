@@ -19,7 +19,7 @@ class Product extends BaseModel
     }
 
     public static function getMostRecent($page=1,$size=16){
-        $products = self::order('create_time','desc')
+        $products = self::where('status',1)->order('create_time','desc')
             ->paginate($size,true,['page' => $page]);
         return $products;
     }
@@ -29,10 +29,10 @@ class Product extends BaseModel
         return $products;
     }
 
-    public static function getAll($page,$size){
-        $products = self::withTrashed()->paginate($size,true,['page' => $page]);
-        return $products;
-    }
+//    public static function getAll($page,$size){
+//        $products = self::withTrashed()->paginate($size,true,['page' => $page]);
+//        return $products;
+//    }
 
     public function imgs(){
         return $this->hasMany('ProductImage','product_id','id');
@@ -67,17 +67,17 @@ class Product extends BaseModel
      * @param $imageId
      * @return Product
      */
-    public static function createProduct($dataArray,$saveName,$imageId){
-        $product = self::create([
-            'name' => $dataArray['name'],
-            'price' => $dataArray['price'],
-            'stock' => $dataArray['stock'],
-            'category_id' => $dataArray['category_id'],
-            'main_img_url' => '/'.$saveName,
-            'from' => 1,
-            'summary' => $dataArray['summary'],
-            'img_id' => $imageId,
-        ]);
-        return $product;
-    }
+//    public static function createProduct($dataArray,$saveName,$imageId){
+//        $product = self::create([
+//            'name' => $dataArray['name'],
+//            'price' => $dataArray['price'],
+//            'stock' => $dataArray['stock'],
+//            'category_id' => $dataArray['category_id'],
+//            'main_img_url' => '/'.$saveName,
+//            'from' => 1,
+//            'summary' => $dataArray['summary'],
+//            'img_id' => $imageId,
+//        ]);
+//        return $product;
+//    }
 }

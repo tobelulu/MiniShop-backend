@@ -18,11 +18,11 @@ class Image extends BaseModel
         return $this->prefixImgUrl($value,$data);
     }
 
-    public static function createImage($url){
-        $image = self::create([
-            'url' => '/'.$url,
-            'from' => 1,
-        ]);
-        return $image;
-    }
+//    public static function createImage($url){
+//        $image = self::create([
+//            'url' => '/'.$url,
+//            'from' => 1,
+//        ]);
+//        return $image;
+//    }
 }

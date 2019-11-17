@@ -27,19 +27,19 @@ Route::group('api/:version/product',function (){
     Route::get('/recent','api/:version.Product/getRecent');
     //根据商品id获取商品信息
     Route::get('/:id','api/:version.Product/getOne',[],['id'=>'\d+']);
-    //获取所有商品
-    Route::get('/all','api/:version.Product/getAll');
-    //上传商品
-    Route::post('/upload','api/:version.Product/upload');
-    //下架商品(软删除)
-    Route::put('/delete','api/:version.Product/deleteOne');
+//    //获取所有商品
+//    Route::get('/all','api/:version.Product/getAll');
+//    //上传商品
+//    Route::post('/upload','api/:version.Product/upload');
+//    //下架商品(软删除)
+//    Route::put('/delete','api/:version.Product/deleteOne');
 });
 
 
 //获取分类列表
 Route::get('api/:version/category/all','api/:version.Category/getAllCategories');
 //添加分类
-Route::post('api/:version/category/add','api/:version.Category/add');
+//Route::post('api/:version/category/add','api/:version.Category/add');
 
 
 //获取小程序Token
@@ -47,7 +47,7 @@ Route::post('api/:version/token/user','api/:version.Token/getToken');
 //验证Token是否有效
 Route::post('api/:version/token/verify','api/:version.Token/verifyToken');
 //获取appToken
-Route::post('api/:version/token/app','api/:version.Token/getAppToken');
+//Route::post('api/:version/token/app','api/:version.Token/getAppToken');
 
 
 //创建或更新收货地址
@@ -63,9 +63,9 @@ Route::get('api/:version/order/by_user','api/:version.Order/getSummaryByUser');
 //获取订单详情
 Route::get('api/:version/order/:id','api/:version.Order/getDetail',[],['id'=>'\d+']);
 //获取所有订单列表
-Route::get('api/:version/order/paginate','api/:version.Order/getSummary');
+//Route::get('api/:version/order/paginate','api/:version.Order/getSummary');
 //发货
-Route::put('api/:version/order/delivery','api/:version.Order/delivery');
+//Route::put('api/:version/order/delivery','api/:version.Order/delivery');
 //获取邮费
 Route::get('api/:version/order/postage','api/:version.Order/getPostage');
 
@@ -74,15 +74,3 @@ Route::get('api/:version/order/postage','api/:version.Order/getPostage');
 Route::post('api/:version/pay/pre_order','api/:version.Pay/getPreOrder');
 //微信支付返回结果
 Route::post('api/:version/pay/notify','api/:version.Pay/receiveNotify');
-
-/**
- * 路由测试链接
- * z.cn/api/v1/banner/1
- * z.cn/api/v1/theme?ids=1,2,3
- * z.cn/api/v1/theme/1
- * z.cn/api/v1/product/recent?count=3
- * z.cn/api/v1/product/by_category?id=3
- * z.cn/api/v1/product/2
- * z.cn/api/v1/category/all
- * z.cn/api/v1/address
- */

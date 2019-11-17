@@ -53,13 +53,13 @@ class Token
      * @url /app_token?
      * @POST ac=:ac se=:secret
      */
-    public function getAppToken($ac='',$se=''){
-        (new AppTokenGet())->goCheck();
-        $app = new AppToken();
-        $token = $app->get($ac,$se);
-        return [
-            'token' => $token
-        ];
-    }
+//    public function getAppToken($ac='',$se=''){
+//        (new AppTokenGet())->goCheck();
+//        $app = new AppToken();
+//        $token = $app->get($ac,$se);
+//        return [
+//            'token' => $token
+//        ];
+//    }
 
 }

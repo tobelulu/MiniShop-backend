@@ -8,6 +8,10 @@ class Order extends BaseModel
 {
     protected $hidden = ['delete_time','user_id','update_time'];
 
+    public function deliverRecord(){
+        return $this->hasOne('DeliverRecord','order_no','order_no');
+    }
+
     public function getSnapItemsAttr($value){
         if(empty($value)){
             return null;
@@ -29,9 +33,9 @@ class Order extends BaseModel
         return $pagingData;
     }
 
-    public static function getSummaryByPage($page=1, $size=20){
-        $pagingData = self::order('create_time desc')
-            ->paginate($size, true, ['page' => $page]);
-        return $pagingData;
-    }
+//    public static function getSummaryByPage($page=1, $size=20){
+//        $pagingData = self::order('create_time desc')
+//            ->paginate($size, true, ['page' => $page]);
+//        return $pagingData;
+//    }
 }

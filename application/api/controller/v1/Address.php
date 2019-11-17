@@ -13,9 +13,9 @@ use app\lib\exception\UserException;
 
 class Address extends BaseController
 {
-    protected $beforeActionList = [
-        'checkPrimaryScope' => ['only' => 'createOrUpdateAddress,getUserAddress']
-    ];
+//    protected $beforeActionList = [
+//        'checkPrimaryScope' => ['only' => 'createOrUpdateAddress,getUserAddress']
+//    ];
 
     public function createOrUpdateAddress(){
         //根据Token获取uid

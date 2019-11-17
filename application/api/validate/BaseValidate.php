@@ -56,9 +56,9 @@ class BaseValidate extends Validate
     }
 
     //不做验证
-    protected function noValidate($value,$rule='',$data='',$field=''){
-        return true;
-    }
+//    protected function noValidate($value,$rule='',$data='',$field=''){
+//        return true;
+//    }
 
     /**
      * 判断是否是手机号

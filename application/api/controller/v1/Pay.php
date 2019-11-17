@@ -13,9 +13,9 @@ require_once '../extend/WxPay/WxPay.Api.php';
 
 class Pay extends BaseController
 {
-    protected $beforeActionList = [
-        'checkExclusiveScope' => ['only' => 'getPreOrder']
-    ];
+//    protected $beforeActionList = [
+//        'checkExclusiveScope' => ['only' => 'getPreOrder']
+//    ];
 
     //请求预订单
     public function getPreOrder($id=''){

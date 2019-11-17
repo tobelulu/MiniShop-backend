@@ -12,9 +12,9 @@ use app\lib\exception\SuccessMessage;
 
 class Category
 {
-    protected $beforeActionList = [
-        'checkAdministratorsScope' => ['only' => 'add'],
-    ];//权限控制
+//    protected $beforeActionList = [
+//        'checkAdministratorsScope' => ['only' => 'add'],
+//    ];//权限控制
 
     public function getAllCategories(){
         $categories = CategoryModel::with('img')->select();
@@ -31,20 +31,20 @@ class Category
      * @throws ImageException
      * @throws \app\lib\exception\ParameterException
      */
-    public function add(){
-        $validate = new AddCategory();
-        $validate->goCheck();
-        $name = $validate->getDataByRule(input('post.'));
-        $img = request()->file('img');
-        $fileInfo = $img->validate(['ext'=>'jpg,jpeg,png,gif'])->move( '../public/images');//保存图片
-        if($fileInfo){
-            $image = ImageModel::createImage(str_replace('\\','/',$fileInfo->getSaveName()));//保存Image表
-            CategoryModel::createCategory($name['name'],$image->id);
-            return Json(new SuccessMessage(),201);
-        }
-        else{
-            throw new ImageException();
-        }
-    }
+//    public function add(){
+//        $validate = new AddCategory();
+//        $validate->goCheck();
+//        $name = $validate->getDataByRule(input('post.'));
+//        $img = request()->file('img');
+//        $fileInfo = $img->validate(['ext'=>'jpg,jpeg,png,gif'])->move( '../public/images');//保存图片
+//        if($fileInfo){
+//            $image = ImageModel::createImage(str_replace('\\','/',$fileInfo->getSaveName()));//保存Image表
+//            CategoryModel::createCategory($name['name'],$image->id);
+//            return Json(new SuccessMessage(),201);
+//        }
+//        else{
+//            throw new ImageException();
+//        }
+//    }
 
 }
