@@ -9,7 +9,6 @@ use app\api\model\Product;
 use app\api\model\UserAddress;
 use app\api\model\Order as OrderModel;
 use app\api\model\Postage as PostageModel;
-use app\lib\enum\OrderStatusEnum;
 use app\lib\exception\OrderException;
 use app\lib\exception\UserException;
 use think\Db;
@@ -165,6 +164,8 @@ class Order
      * @throws OrderException
      */
     private function getOrderStatus(){
+        $postageFlag = false;//是否有包邮商品
+        $postageMax = 0;//邮费的最大值
         $status = [
             'pass' => true,
             'orderPrice' => 0,
@@ -179,15 +180,24 @@ class Order
             if(!$pStatus['haveStock']){
                 $status['pass'] = false;
             }
+            if($pStatus['postage']==0){
+                $postageFlag = true;
+            }else{
+                if($pStatus['postage']>$postageMax){
+                    $postageMax = $pStatus['postage'];
+                }
+            }
             $status['orderPrice'] += $pStatus['totalPrice'];
             $status['totalCount'] += $pStatus['counts'];
             array_push($status['pStatusArray'],$pStatus);
         }
-        $postage = PostageModel::find(1);
         //检测是否包邮
-        if($status['orderPrice'] < $postage->condition){
-            $status['orderPrice'] += $postage->price;
-            $status['postagePrice'] = $postage->price;
+        if(!$postageFlag){//若无包邮商品
+            $postage = PostageModel::find(1);
+            if($status['orderPrice'] < $postage->condition){//若不满足全场包邮条件
+                $status['orderPrice'] += $postageMax;
+                $status['postagePrice'] = $postageMax;
+            }
         }
         return $status;
     }
@@ -211,7 +221,8 @@ class Order
             'price' => 0,
             'name' => '',
             'totalPrice' => 0,
-            'main_img_url' => null
+            'main_img_url' => null,
+            'postage' => -1
         ];
         for($i=0;$i<count($products);$i++){
             if($oPID == $products[$i]['id']){
@@ -224,6 +235,11 @@ class Order
                 'msg' => 'id为'.$oPID.'的商品不存在，创建订单失败'
             ]);
         }
+        elseif ($products[$pIndex]['status'] == 0){
+            throw new OrderException([
+                'msg' => 'id为'.$oPID.'的商品已下架，创建订单失败'
+            ]);
+        }
         else{
             $product = $products[$pIndex];
             $pStatus['id'] = $product['id'];
@@ -232,6 +248,7 @@ class Order
             $pStatus['totalPrice'] = $product['price']*$oCount;
             $pStatus['price'] = $product['price'];
             $pStatus['main_img_url'] = $product['main_img_url'];
+            $pStatus['postage'] = $product['postage'];
             if($product['stock']-$oCount >= 0){
                 $pStatus['haveStock'] = true;
             }
@@ -250,7 +267,7 @@ class Order
             array_push($oPIDs,$item['product_id']);
         }
         $products = Product::all($oPIDs)
-            ->visible(['id','price','stock','name','main_img_url'])
+            ->visible(['id','price','stock','name','main_img_url','status','postage'])
             ->toArray();
         return $products;
     }
@@ -272,42 +289,6 @@ class Order
         return $status;
     }
 
-    /**
-     * 发货
-     * @param $orderID
-     * @param string $jumpPage
-     * @return bool
-     * @throws OrderException
-     * @throws \think\db\exception\DataNotFoundException
-     * @throws \think\db\exception\ModelNotFoundException
-     * @throws \think\exception\DbException
-     */
-    public function delivery($orderID,$expressNumber)
-    {
-        $order = OrderModel::where('id', '=', $orderID)->find();
-        if (!$order) {
-            throw new OrderException();
-        }
-        if ($order->status != OrderStatusEnum::PAID) {
-            throw new OrderException([
-                'msg' => '还没付款呢，想干嘛？或者你已经更新过订单了，不要再刷了',
-                'errorCode' => 80002,
-                'code' => 403
-            ]);
-        }
-        Db::startTrans();
-        try {
-            $order->status = OrderStatusEnum::DELIVERED;
-            $order->express_number = $expressNumber;
-            $order->save();
-            $message = new DeliveryMessage();
-            $result = $message->sendDeliveryMessage($order);
-            Db::commit();
-            return $result;
-        }
-        catch (Exception $ex){
-                Db::rollback();
-                throw $ex;
-        }
-    }
+
+
 }

@@ -3,18 +3,16 @@
 
 namespace app\api\controller\v1;
 
-use app\api\service\Token as TokenService;
-use app\api\controller\BaseController;
-use app\api\validate\IDMustBePositiveInt;
-use app\api\validate\OrderPlace;
-use app\api\service\Order as OrderService;
-use app\api\validate\PagingParameter;
 use app\api\model\Order as OrderModel;
 use app\api\model\Postage as PostageModel;
+use app\api\service\Order as OrderService;
+use app\api\service\Token as TokenService;
+use app\api\validate\IDMustBePositiveInt;
+use app\api\validate\OrderPlace;
+use app\api\validate\PagingParameter;
 use app\lib\exception\OrderException;
-use app\lib\exception\SuccessMessage;
 
-class Order extends BaseController
+class Order
 {
     //用户在选择商品后，向API提交包含它所选商品的相关信息
     //API在接受到消息后，需要检测相关商品的库存量
@@ -27,16 +25,10 @@ class Order extends BaseController
     //成功：进行库存量检测
     //  成功：进行库存量扣除
 
-//    protected $beforeActionList = [
-//        'checkExclusiveScope' => ['only' => 'placeOrder'],
-//        'checkPrimaryScope' => ['only' => 'getSummaryByUser,getDetail'],
-////        'checkAdministratorsScope' => ['only' => 'getSummary,delivery'],
-//    ];//权限控制
-
     //创建订单
     public function placeOrder(){
         (new OrderPlace())->goCheck();
-        $products = input('post.products/a');
+        $products = input('post.products/a');// /a是为了获取数组
         $uid = TokenService::getCurrentUid();
         $order = new OrderService();
         $status = $order->place($uid,$products);
@@ -80,46 +72,35 @@ class Order extends BaseController
         return $orderDetail->hidden(['prepay_id']);
     }
 
-    /**
-     * 获取全部订单(分页)
-     * @param int $page
-     * @param int $size
-     * @return array
-     * @throws \app\lib\exception\ParameterException
-     */
-//    public function getSummary($page=1, $size = 20){
-//        (new PagingParameter())->goCheck();
-//        $pagingOrders = OrderModel::getSummaryByPage($page, $size);
-//        if ($pagingOrders->isEmpty())
-//        {
-//            return [
-//                'current_page' => $pagingOrders->currentPage(),
-//                'data' => []
-//            ];
-//        }
-//        $data = $pagingOrders->toArray();
-//        return $data;
-//    }
-
-    /**
-     * 发送模板消息
-     * @param $id
-     * @return SuccessMessage
-     * @throws \app\lib\exception\ParameterException
-     */
-//    public function delivery($id,$expressNumber){
-//        (new IDMustBePositiveInt())->goCheck();
-//        $order = new OrderService();
-//        $success = $order->delivery($id,$expressNumber);
-//        if($success){
-//            return new SuccessMessage();
-//        }
-//    }
-
     //获取邮费
     public function getPostage(){
+        (new OrderPlace())->goCheck();
+        $products = input('post.products/a');
+        $postageFlag = false;//是否有包邮商品
+        $postageMax = 0;//邮费的最大值
+        $totalPrice = 0;//总价
+        foreach ($products as $product){
+            $totalPrice += $product['price'];
+            if($product['postage']==0){
+                $postageFlag = true;
+                break;
+            }else{
+                if($product['postage']>$postageMax){
+                    $postageMax=$product['postage'];
+                }
+            }
+        }
         $postage = PostageModel::find(1);
-        return $postage;
+        $result = [
+            'condition' => $postage->condition,
+            'postage' => 0,
+        ];
+        if(!$postageFlag){//若无包邮商品
+            if($totalPrice < $postage->condition){//若不满足全场包邮条件
+                $result['postage'] = $postageMax;
+            }
+        }
+        return $result;
     }
 
 }

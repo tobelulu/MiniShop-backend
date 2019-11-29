@@ -67,7 +67,7 @@ Route::get('api/:version/order/:id','api/:version.Order/getDetail',[],['id'=>'\d
 //发货
 //Route::put('api/:version/order/delivery','api/:version.Order/delivery');
 //获取邮费
-Route::get('api/:version/order/postage','api/:version.Order/getPostage');
+Route::post('api/:version/order/postage','api/:version.Order/getPostage');
 
 
 //获取预订单

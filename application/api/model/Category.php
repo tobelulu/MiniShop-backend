@@ -12,11 +12,4 @@ class Category extends BaseModel
         return $this->belongsTo('Image','topic_img_id','id');
     }
 
-    public static function createCategory($name,$img){
-        $category = self::create([
-            'name' => $name,
-            'topic_img_id' => $img
-        ]);
-        return $category;
-    }
 }

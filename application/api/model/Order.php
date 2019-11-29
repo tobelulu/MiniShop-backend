@@ -32,10 +32,4 @@ class Order extends BaseModel
             ->paginate($size,true,['page' => $page]);
         return $pagingData;
     }
-
-//    public static function getSummaryByPage($page=1, $size=20){
-//        $pagingData = self::order('create_time desc')
-//            ->paginate($size, true, ['page' => $page]);
-//        return $pagingData;
-//    }
 }

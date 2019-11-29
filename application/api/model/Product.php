@@ -25,14 +25,9 @@ class Product extends BaseModel
     }
 
     public static function getProductsByCategoryID($categoryID){
-        $products = self::where('category_id','=',$categoryID)->limit(12)->select();
+        $products = self::where('category_id','=',$categoryID)->select();
         return $products;
     }
-
-//    public static function getAll($page,$size){
-//        $products = self::withTrashed()->paginate($size,true,['page' => $page]);
-//        return $products;
-//    }
 
     public function imgs(){
         return $this->hasMany('ProductImage','product_id','id');
@@ -59,25 +54,4 @@ class Product extends BaseModel
         ])->find($id);
         return $products;
     }
-
-    /**
-     * 添加商品
-     * @param $dataArray
-     * @param $saveName
-     * @param $imageId
-     * @return Product
-     */
-//    public static function createProduct($dataArray,$saveName,$imageId){
-//        $product = self::create([
-//            'name' => $dataArray['name'],
-//            'price' => $dataArray['price'],
-//            'stock' => $dataArray['stock'],
-//            'category_id' => $dataArray['category_id'],
-//            'main_img_url' => '/'.$saveName,
-//            'from' => 1,
-//            'summary' => $dataArray['summary'],
-//            'img_id' => $imageId,
-//        ]);
-//        return $product;
-//    }
 }

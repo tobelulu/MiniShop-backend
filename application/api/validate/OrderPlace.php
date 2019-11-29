@@ -35,7 +35,7 @@ class OrderPlace extends BaseValidate
     }
 
     /**
-     * 验证请求数组内部product_id,count必须时正整数
+     * 验证请求数组内部product_id,count必须是正整数
      * @param $value
      * @throws ParameterException
      */

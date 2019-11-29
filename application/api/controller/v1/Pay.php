@@ -4,18 +4,14 @@
 namespace app\api\controller\v1;
 
 
-use app\api\controller\BaseController;
 use app\api\service\WxNotify;
 use app\api\validate\IDMustBePositiveInt;
 use app\api\service\Pay as PayService;
 
 require_once '../extend/WxPay/WxPay.Api.php';
 
-class Pay extends BaseController
+class Pay
 {
-//    protected $beforeActionList = [
-//        'checkExclusiveScope' => ['only' => 'getPreOrder']
-//    ];
 
     //请求预订单
     public function getPreOrder($id=''){
