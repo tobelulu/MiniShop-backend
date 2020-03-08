@@ -83,6 +83,7 @@ class BaseValidate extends Validate
      * @throws ParameterException
      */
     public function getDataByRule($arrays){
+        // array_key_exists结果是true|false,可以用位运算符|
         if(array_key_exists('user_id',$arrays)|array_key_exists('uid',$arrays)) {
             //不允许包含user_id或者uid，防止恶意覆盖user_id外键
             throw new ParameterException([

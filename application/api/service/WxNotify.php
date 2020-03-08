@@ -4,7 +4,8 @@
 namespace app\api\service;
 
 use app\api\model\Order as OrderModel;
-use app\api\model\Product;
+use app\api\model\Product as ProductModel;
+use app\api\model\Sku as SkuModel;
 use app\api\service\Order as OrderService;
 use app\lib\enum\OrderStatusEnum;
 use think\Db;
@@ -63,9 +64,18 @@ class WxNotify extends \WxPayNotify
         OrderModel::where('id','=',$orderID)->update(['status'=>$status]);
     }
 
+    /**
+     * 减库存、加销量
+     * @param $stockStatus
+     * @throws Exception
+     */
     private function reduceStock($stockStatus){
         foreach ($stockStatus['pStatusArray'] as $singlePStatus) {
-            Product::where('id','=',$singlePStatus['id'])->setDec('stock',$singlePStatus['counts']);
+            $sku = SkuModel::get($singlePStatus['id']);
+            $sku->stock = ['dec',$singlePStatus['counts']]; // 减sku库存
+            $sku->sale = ['inc',$singlePStatus['counts']]; // 增sku销量
+            $sku->save();
+            ProductModel::where('id','=',$sku->product_id)->setInc('sale',$singlePStatus['counts']); // 增product销量
         }
     }
 }

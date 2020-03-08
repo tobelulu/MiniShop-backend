@@ -28,7 +28,7 @@ class Order
     //创建订单
     public function placeOrder(){
         (new OrderPlace())->goCheck();
-        $products = input('post.products/a');// /a是为了获取数组
+        $products = input('post.sku/a');// /a是为了获取数组
         $uid = TokenService::getCurrentUid();
         $order = new OrderService();
         $status = $order->place($uid,$products);
@@ -75,7 +75,7 @@ class Order
     //获取邮费
     public function getPostage(){
         (new OrderPlace())->goCheck();
-        $products = input('post.products/a');
+        $products = input('post.sku/a');
         $postageFlag = false;//是否有包邮商品
         $postageMax = 0;//邮费的最大值
         $totalPrice = 0;//总价

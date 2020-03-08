@@ -5,8 +5,9 @@ namespace app\api\service;
 
 
 use app\api\model\OrderProduct;
-use app\api\model\Product;
+use app\api\model\Sku;
 use app\api\model\UserAddress;
+use app\api\model\Product;
 use app\api\model\Order as OrderModel;
 use app\api\model\Postage as PostageModel;
 use app\lib\exception\OrderException;
@@ -68,7 +69,7 @@ class Order
             $order->snap_img = $snap['snapImg'];
             $order->snap_name = $snap['snapName'];
             $order->snap_address = $snap['snapAddress'];
-            $order->snap_items = json_encode($snap['pStatus']);
+            $order->snap_items = json_encode($snap['pStatus'],JSON_UNESCAPED_UNICODE);
             $order->postage_price = $snap['postagePrice'];
             $order->save();
 
@@ -99,7 +100,7 @@ class Order
      */
     public static function makeOrderNo(){
         $yCode = array('A','B','C','D','E','F','G','H','I','J');
-        $orderSn = $yCode[intval(date('Y'))-2019].strtoupper(dechex(date('m'))).
+        $orderSn = $yCode[intval(date('Y'))-2020].strtoupper(dechex(date('m'))).
             date('d').substr(time(),-5).substr(microtime(),2,5).
             sprintf('%02d',rand(0,99));
         return $orderSn;
@@ -128,9 +129,9 @@ class Order
         $snap['orderPrice'] = $status['orderPrice'];
         $snap['totalCount'] = $status['totalCount'];
         $snap['pStatus'] = $status['pStatusArray'];
-        $snap['snapAddress'] = json_encode($this->getUserAddress());
+        $snap['snapAddress'] = json_encode($this->getUserAddress(),JSON_UNESCAPED_UNICODE);
         $snap['snapName'] = $this->products[0]['name'];
-        $snap['snapImg'] = $this->products[0]['main_img_url'];
+        $snap['snapImg'] = $this->products[0]['img_url']['url'];
         $snap['postagePrice'] = $status['postagePrice'];
 
         if(count($this->products)>1){
@@ -164,8 +165,8 @@ class Order
      * @throws OrderException
      */
     private function getOrderStatus(){
-        $postageFlag = false;//是否有包邮商品
-        $postageMax = 0;//邮费的最大值
+        $postageFlag = false;//订单中是否有包邮商品
+        $postageMax = 0;//订单中所有商品设置的邮费的最大值
         $status = [
             'pass' => true,
             'orderPrice' => 0,
@@ -175,9 +176,10 @@ class Order
         ];
         foreach ($this->oProducts as $oProduct){
             $pStatus = $this->getProductStatus(
-                $oProduct['product_id'],$oProduct['count'],$this->products
+                $oProduct['sku_id'],$oProduct['count'],$this->products
             );
-            if(!$pStatus['haveStock']){
+            $product = Product::get($pStatus['product_id']); // sku和product各自的status和stock都要检查
+            if(!$pStatus['haveStock'] || !$pStatus['status'] || !$product->stock || !$product->status){
                 $status['pass'] = false;
             }
             if($pStatus['postage']==0){
@@ -221,25 +223,28 @@ class Order
             'price' => 0,
             'name' => '',
             'totalPrice' => 0,
-            'main_img_url' => null,
-            'postage' => -1
+            'img' => null,
+            'postage' => -1,
+            'status' => 0,
+            'product_id' => 0,
         ];
         for($i=0;$i<count($products);$i++){
             if($oPID == $products[$i]['id']){
                 $pIndex = $i;
+                break;
             }
         }
         if($pIndex == -1){
-            //客户端传递的product_id可能根本不存在
+            //客户端传递的sku的id可能根本不存在
             throw new OrderException([
                 'msg' => 'id为'.$oPID.'的商品不存在，创建订单失败'
             ]);
         }
-        elseif ($products[$pIndex]['status'] == 0){
-            throw new OrderException([
-                'msg' => 'id为'.$oPID.'的商品已下架，创建订单失败'
-            ]);
-        }
+//        elseif ($products[$pIndex]['status'] == 0){
+//            throw new OrderException([
+//                'msg' => '"'.$products[$pIndex]['name'].'" 已下架，创建订单失败'
+//            ]);
+//        }
         else{
             $product = $products[$pIndex];
             $pStatus['id'] = $product['id'];
@@ -247,8 +252,10 @@ class Order
             $pStatus['name'] = $product['name'];
             $pStatus['totalPrice'] = $product['price']*$oCount;
             $pStatus['price'] = $product['price'];
-            $pStatus['main_img_url'] = $product['main_img_url'];
+            $pStatus['img'] = $product['img_url']['url'];
             $pStatus['postage'] = $product['postage'];
+            $pStatus['status'] = $product['status'];
+            $pStatus['product_id'] = $product['product_id'];
             if($product['stock']-$oCount >= 0){
                 $pStatus['haveStock'] = true;
             }
@@ -264,10 +271,10 @@ class Order
     private function getProductsByOrder($oProducts){
         $oPIDs = [];//商品id号
         foreach ($oProducts as $item){
-            array_push($oPIDs,$item['product_id']);
+            array_push($oPIDs,$item['sku_id']);
         }
-        $products = Product::all($oPIDs)
-            ->visible(['id','price','stock','name','main_img_url','status','postage'])
+        $products = Sku::all($oPIDs,'imgUrl')
+            ->visible(['id','price','stock','name','status','postage','img_url','product_id'])
             ->toArray();
         return $products;
     }
