@@ -130,7 +130,7 @@ class Order
         $snap['totalCount'] = $status['totalCount'];
         $snap['pStatus'] = $status['pStatusArray'];
         $snap['snapAddress'] = json_encode($this->getUserAddress(),JSON_UNESCAPED_UNICODE);
-        $snap['snapName'] = $this->products[0]['name'];
+        $snap['snapName'] = $status['pStatusArray'][0]['product_name'];
         $snap['snapImg'] = $this->products[0]['img_url']['url'];
         $snap['postagePrice'] = $status['postagePrice'];
 
@@ -178,10 +178,13 @@ class Order
             $pStatus = $this->getProductStatus(
                 $oProduct['sku_id'],$oProduct['count'],$this->products
             );
-            $product = Product::get($pStatus['product_id']); // sku和product各自的status和stock都要检查
+            $product = Product::get($pStatus['product_id']);
+            $pStatus['product_name'] = $product->name;
+            // 判断订单是否通过, sku和product各自的status和stock都要检查
             if(!$pStatus['haveStock'] || !$pStatus['status'] || !$product->stock || !$product->status){
                 $status['pass'] = false;
             }
+            // 计算邮费
             if($pStatus['postage']==0){
                 $postageFlag = true;
             }else{
@@ -227,6 +230,7 @@ class Order
             'postage' => -1,
             'status' => 0,
             'product_id' => 0,
+            'product_name' => null, // 在检查product->status时顺便赋值，不在这里赋值，避免重复查询数据库
         ];
         for($i=0;$i<count($products);$i++){
             if($oPID == $products[$i]['id']){
@@ -240,11 +244,6 @@ class Order
                 'msg' => 'id为'.$oPID.'的商品不存在，创建订单失败'
             ]);
         }
-//        elseif ($products[$pIndex]['status'] == 0){
-//            throw new OrderException([
-//                'msg' => '"'.$products[$pIndex]['name'].'" 已下架，创建订单失败'
-//            ]);
-//        }
         else{
             $product = $products[$pIndex];
             $pStatus['id'] = $product['id'];

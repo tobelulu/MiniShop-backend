@@ -70,12 +70,33 @@ class WxNotify extends \WxPayNotify
      * @throws Exception
      */
     private function reduceStock($stockStatus){
+        $skuArr = [];
         foreach ($stockStatus['pStatusArray'] as $singlePStatus) {
             $sku = SkuModel::get($singlePStatus['id']);
             $sku->stock = ['dec',$singlePStatus['counts']]; // 减sku库存
             $sku->sale = ['inc',$singlePStatus['counts']]; // 增sku销量
             $sku->save();
-            ProductModel::where('id','=',$sku->product_id)->setInc('sale',$singlePStatus['counts']); // 增product销量
+            if (array_key_exists($sku->product_id, $skuArr)) {
+                $skuArr[$sku->product_id] += $singlePStatus['counts'];
+            } else {
+                $skuArr[$sku->product_id] = $singlePStatus['counts'];
+            }
+        }
+        // 对product的遍历单独拿出来，避免多个sku属于同一个product是重复查询product
+        foreach ($skuArr as $id=>$sale) {
+            $product = ProductModel::with(['sku'])->find($id);
+            $product->sale = ['inc',$sale];// 增product销量
+            // 判断sku库存，所有sku库存都小于1时，将product库存状态改为0
+            $empty = true;
+            foreach ($product->sku as $item) {
+                if($item['stock'] > 0) {
+                    $empty = false;
+                }
+            }
+            if ($empty) {
+                $product->stock = 0;
+            }
+            $product->save();
         }
     }
 }
