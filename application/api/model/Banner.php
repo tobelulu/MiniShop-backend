@@ -4,8 +4,11 @@
 namespace app\api\model;
 
 
+use think\model\concern\SoftDelete;
+
 class Banner extends BaseModel
 {
+    use SoftDelete;
     //隐藏部分无用结果
     protected $hidden = ['delete_time','update_time'];
     //定义模型之间的关系，with函数会调用

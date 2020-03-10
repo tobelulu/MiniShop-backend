@@ -21,7 +21,11 @@ class Theme extends BaseModel
     }
 
     public static function getThemeWithProducts($id){
-        $themes = self::with(['products','topicImg','headImg'])->find($id);
+        $themes = self::with([
+            'products' => function($query){
+                $query->where('status','=',1);
+            },
+            'topicImg','headImg'])->find($id);
         return $themes;
     }
 }

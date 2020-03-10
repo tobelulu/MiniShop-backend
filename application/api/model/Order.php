@@ -4,8 +4,11 @@
 namespace app\api\model;
 
 
+use think\model\concern\SoftDelete;
+
 class Order extends BaseModel
 {
+    use SoftDelete;
     protected $hidden = ['delete_time','user_id','update_time'];
 
     public function deliverRecord(){

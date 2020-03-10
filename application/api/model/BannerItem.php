@@ -4,8 +4,11 @@
 namespace app\api\model;
 
 
+use think\model\concern\SoftDelete;
+
 class BannerItem extends BaseModel
 {
+    use SoftDelete;
     protected $hidden = ['delete_time','update_time','id','img_id','banner_id'];
 
     public function img(){

@@ -39,9 +39,9 @@ class Product
     public function getAllInCategory($id){
         (new IDMustBePositiveInt())->goCheck();
         $products = ProductModel::getProductsByCategoryID($id);
-        if($products->isEmpty()){
-            throw new ProductException();
-        }
+//        if($products->isEmpty()){
+//            throw new ProductException();
+//        }
         $products->hidden(['summary','delete_time']);
         return $products;
     }

@@ -4,9 +4,11 @@
 namespace app\api\model;
 
 
+use think\model\concern\SoftDelete;
+
 class Product extends BaseModel
 {
-
+    use SoftDelete;
     protected $hidden = ['update_time','img_id','from','category_id','create_time'];
     /**
      * 自动调用的读取器
@@ -22,7 +24,7 @@ class Product extends BaseModel
     }
 
     public static function getProductsByCategoryID($categoryID){
-        $products = self::where('category_id','=',$categoryID)->select();
+        $products = self::where([['category_id','=',$categoryID],['status','=',1]])->select();
         return $products;
     }
 
