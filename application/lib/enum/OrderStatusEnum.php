@@ -14,4 +14,10 @@ class OrderStatusEnum
     const DELIVERED = 3;
     //已支付，但库存不足
     const PAID_BUT_OUT_OF = 4;
+    // 已退款
+    const REFUNDED = 5;
+    // 已收货
+    const RECEIVED = 6;
+    // 已关闭
+    const CLOSED = 7;
 }

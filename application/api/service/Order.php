@@ -9,7 +9,7 @@ use app\api\model\Sku;
 use app\api\model\UserAddress;
 use app\api\model\Product;
 use app\api\model\Order as OrderModel;
-use app\api\model\Postage as PostageModel;
+use app\api\model\Config as ConfigModel;
 use app\lib\exception\OrderException;
 use app\lib\exception\UserException;
 use think\Db;
@@ -198,8 +198,8 @@ class Order
         }
         //检测是否包邮
         if(!$postageFlag){//若无包邮商品
-            $postage = PostageModel::find(1);
-            if($status['orderPrice'] < $postage->condition){//若不满足全场包邮条件
+            $postage = ConfigModel::find(1);
+            if($status['orderPrice'] < $postage->detail){//若不满足全场包邮条件
                 $status['orderPrice'] += $postageMax;
                 $status['postagePrice'] = $postageMax;
             }

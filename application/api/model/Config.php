@@ -4,7 +4,7 @@
 namespace app\api\model;
 
 
-class Postage extends BaseModel
+class Config extends BaseModel
 {
     protected $hidden = ['id'];
 }

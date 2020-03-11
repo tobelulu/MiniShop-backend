@@ -4,13 +4,15 @@
 namespace app\api\controller\v1;
 
 use app\api\model\Order as OrderModel;
-use app\api\model\Postage as PostageModel;
+use app\api\model\Config as ConfigModel;
 use app\api\service\Order as OrderService;
 use app\api\service\Token as TokenService;
 use app\api\validate\IDMustBePositiveInt;
 use app\api\validate\OrderPlace;
 use app\api\validate\PagingParameter;
+use app\lib\enum\OrderStatusEnum;
 use app\lib\exception\OrderException;
+use app\lib\exception\SuccessMessage;
 
 class Order
 {
@@ -90,9 +92,9 @@ class Order
                 }
             }
         }
-        $postage = PostageModel::find(1);
+        $postage = ConfigModel::find(1);
         $result = [
-            'condition' => $postage->condition,
+            'condition' => $postage->detail,
             'postage' => 0,
         ];
         if(!$postageFlag){//若无包邮商品
@@ -101,6 +103,32 @@ class Order
             }
         }
         return $result;
+    }
+
+    // 关闭订单
+    public function close($id) {
+        $uid = TokenService::getCurrentUid();
+        $order = OrderModel::where([['id' => $id],['user_id' => $uid]])->find();
+        if ($order->status == OrderStatusEnum::UNPAID) {
+            $order->status = OrderStatusEnum::CLOSED;
+            $order->save();
+            return Json(new SuccessMessage(),201);
+        } else {
+            throw new OrderException(['msg' => '关闭订单失败']);
+        }
+    }
+
+    // 确认收货
+    public function received($id) {
+        $uid = TokenService::getCurrentUid();
+        $order = OrderModel::where([['id' => $id],['user_id' => $uid]])->find();
+        if ($order->status == OrderStatusEnum::DELIVERED) {
+            $order->status = OrderStatusEnum::RECEIVED;
+            $order->save();
+            return Json(new SuccessMessage(),201);
+        } else {
+            throw new OrderException(['msg' => '确认收货失败']);
+        }
     }
 
 }
