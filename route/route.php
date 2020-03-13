@@ -67,6 +67,10 @@ Route::group('',function (){
             Route::get(':id','api/:version.Order/getDetail',[],['id'=>'\d+']);
             //获取邮费
             Route::post('postage','api/:version.Order/getPostage');
+            // 关闭订单
+            Route::put('close/:id','api/:version.Order/close');
+            // 确认收货
+            Route::put('receive/:id','api/:version.Order/receive');
         });
         // 支付
         Route::group('pay',function (){

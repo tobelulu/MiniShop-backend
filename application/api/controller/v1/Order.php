@@ -67,7 +67,8 @@ class Order
      */
     public function getDetail($id){
         (new IDMustBePositiveInt())->goCheck();
-        $orderDetail = OrderModel::with(['deliverRecord'])->find($id);
+        $uid = TokenService::getCurrentUid();
+        $orderDetail = OrderModel::where('user_id','=', $uid)->with(['deliverRecord'])->find($id);
         if(!$orderDetail){
             throw new OrderException();
         }
@@ -107,8 +108,12 @@ class Order
 
     // 关闭订单
     public function close($id) {
+        (new IDMustBePositiveInt())->goCheck();
         $uid = TokenService::getCurrentUid();
-        $order = OrderModel::where([['id' => $id],['user_id' => $uid]])->find();
+        $order = OrderModel::where('user_id','=', $uid)->find($id);
+        if(!$order){
+            throw new OrderException();
+        }
         if ($order->status == OrderStatusEnum::UNPAID) {
             $order->status = OrderStatusEnum::CLOSED;
             $order->save();
@@ -119,9 +124,13 @@ class Order
     }
 
     // 确认收货
-    public function received($id) {
+    public function receive($id) {
+        (new IDMustBePositiveInt())->goCheck();
         $uid = TokenService::getCurrentUid();
-        $order = OrderModel::where([['id' => $id],['user_id' => $uid]])->find();
+        $order = OrderModel::where('user_id', '=', $uid)->find($id);
+        if(!$order){
+            throw new OrderException();
+        }
         if ($order->status == OrderStatusEnum::DELIVERED) {
             $order->status = OrderStatusEnum::RECEIVED;
             $order->save();
