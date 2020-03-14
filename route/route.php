@@ -79,6 +79,10 @@ Route::group('',function (){
             //微信支付返回结果
             Route::post('notify','api/:version.Pay/receiveNotify');
         });
+        // Log
+        Route::group('log', function (){
+            Route::post('','api/:version.Log/createLog');
+        });
     });
 });
 
