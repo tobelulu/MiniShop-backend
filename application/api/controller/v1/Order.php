@@ -75,7 +75,12 @@ class Order
         return $orderDetail->hidden(['prepay_id']);
     }
 
-    //获取邮费
+    /**
+     * 获取邮费
+     * 全场满xx包邮的开关未开时返回['postageFlag' => ?,'postage' => ?,]
+     * 打开时返回['postageFlag' => ?,'postage' => ?,'condition' => ?]
+     * @throws \app\lib\exception\ParameterException
+     */
     public function getPostage(){
         (new OrderPlace())->goCheck();
         $products = input('post.sku/a');
@@ -83,23 +88,29 @@ class Order
         $postageMax = 0;//邮费的最大值
         $totalPrice = 0;//总价
         foreach ($products as $product){
-            $totalPrice += $product['price'];
             if($product['postage']==0){
                 $postageFlag = true;
                 break;
             }else{
+                $totalPrice += $product['price'] * $product['count'];
                 if($product['postage']>$postageMax){
                     $postageMax=$product['postage'];
                 }
             }
         }
-        $postage = ConfigModel::find(1);
         $result = [
-            'condition' => $postage->detail,
+            'postageFlag' => 0,
             'postage' => 0,
         ];
-        if(!$postageFlag){//若无包邮商品
-            if($totalPrice < $postage->condition){//若不满足全场包邮条件
+        if(!$postageFlag) { // 若无包邮商品
+            $config = ConfigModel::all('1,2');
+            if ($config[1]->detail) { // 如果全场包邮开关打开
+                $result['postageFlag'] = 1;
+                $result['condition'] = $config[0]->detail;
+                if($totalPrice < $config[0]->detail){//若不满足全场包邮条件
+                    $result['postage'] = $postageMax;
+                }
+            } else {
                 $result['postage'] = $postageMax;
             }
         }

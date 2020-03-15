@@ -198,11 +198,17 @@ class Order
         }
         //检测是否包邮
         if(!$postageFlag){//若无包邮商品
-            $postage = ConfigModel::find(1);
-            if($status['orderPrice'] < $postage->detail){//若不满足全场包邮条件
+            $config = ConfigModel::all('1,2');
+            if ($config[1]->detail) { // 若全场满xx包邮的开关打开
+                if($status['orderPrice'] < $config[0]->detail){//若不满足全场包邮条件
+                    $status['orderPrice'] += $postageMax;
+                    $status['postagePrice'] = $postageMax;
+                }
+            } else {
                 $status['orderPrice'] += $postageMax;
                 $status['postagePrice'] = $postageMax;
             }
+
         }
         return $status;
     }
@@ -227,7 +233,7 @@ class Order
             'name' => '',
             'totalPrice' => 0,
             'img' => null,
-            'postage' => -1,
+            'postage' => 0,
             'status' => 0,
             'product_id' => 0,
             'product_name' => null, // 在检查product->status时顺便赋值，不在这里赋值，避免重复查询数据库
