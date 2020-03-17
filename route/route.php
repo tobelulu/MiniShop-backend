@@ -83,6 +83,10 @@ Route::group('',function (){
         Route::group('log', function (){
             Route::post('','api/:version.Log/createLog');
         });
+        // Config
+        Route::group('config', function (){
+            Route::get('shopStatus','api/:version.Config/getShopStatus');
+        });
     });
 });
 
