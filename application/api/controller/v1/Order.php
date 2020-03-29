@@ -72,6 +72,9 @@ class Order
         if(!$orderDetail){
             throw new OrderException();
         }
+        if ($orderDetail->deliver_record['comp']) {
+            $orderDetail->deliver_record['comp'] = config('setting.comp')[$orderDetail->deliver_record['comp']];
+        }
         return $orderDetail->hidden(['prepay_id']);
     }
 
